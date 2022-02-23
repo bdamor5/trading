@@ -4,7 +4,11 @@ import "../../styles/Watchlist.css";
 import WatchlistTableValues from "./WatchlistTableValues";
 
 const Watchlist = () => {
-  const [watchlistData, setWatchlistData] = useState([]);
+  const [watchlistData, setWatchlistData] = useState();
+
+  var prevVals = [];
+
+  var cellColor = [];
 
   useEffect(() => {
     axios
@@ -12,19 +16,86 @@ const Watchlist = () => {
       .then(({ data }) => {
         console.log(data);
         setWatchlistData(data);
+
+        data.forEach((curr) =>
+          prevVals.push({
+            id: curr.SCRIPID,
+            prevBP: curr.BUY_PRICE,
+            prevSP: curr.SELL_PRICE,
+            prevLTP: curr.LTP,
+          })
+        );
       })
       .catch((err) => console.log(err));
   }, []);
 
-  setInterval(() => {
-    axios
-      .post("http://trial.staginserver.xyz/api/GetExchange?EXCHANGE=MCX")
-      .then(({ data }) => {
-        console.log(data);
-        setWatchlistData(data);
-      })
-      .catch((err) => console.log(err));
-  }, 2000);
+  useEffect(() => {
+    setInterval(() => {
+      axios
+        .post("http://trial.staginserver.xyz/api/GetExchange?EXCHANGE=MCX")
+        .then(({ data }) => {
+          console.log(data);
+
+          var colorBP = "";
+          var colorSP = "";
+          var colorLTP = "";
+    
+          data.forEach((curr) => {
+            prevVals.forEach((ele) => {
+              if (curr.SCRIPID === ele.id) {
+                if (curr.BUY_PRICE > ele.prevBP) {
+                  colorBP = "#0C51C4";
+                } else {
+                  colorBP = "#BF2114";
+                }
+    
+                if (curr.SELL_PRICE > ele.prevSP) {
+                  colorSP = "#0C51C4";
+                } else {
+                  colorSP = "#BF2114";
+                }
+    
+                if (curr.LTP > ele.prevLTP) {
+                  colorLTP = "#0C51C4";
+                } else {
+                  colorLTP = "#BF2114";
+                }
+    
+                if (cellColor.find((cell) => cell.id === curr.SCRIPID)) {
+                  cellColor.forEach((cell) => {
+                    if (cell.id === curr.SCRIPID && colorBP !== "") {
+                      cell.colorBP = colorBP;
+                      cell.colorSP = colorSP;
+                      cell.colorLTP = colorLTP;
+                    }
+                  });
+                } else {
+                  cellColor.push({ id: curr.SCRIPID, colorBP, colorSP, colorLTP });
+                }
+              }
+            });
+          });
+    
+          data.forEach((curr) => {
+            prevVals.forEach((ele) => {
+              if (curr.SCRIPID === ele.id) {
+                ele.prevBP = curr.BUY_PRICE;
+                ele.prevSP = curr.SELL_PRICE;
+                ele.prevLTP = curr.LTP;
+              }
+            });
+          });
+    
+          console.log(cellColor);
+          localStorage.setItem("cellColor", JSON.stringify(cellColor));
+          setWatchlistData(data);
+
+        })
+        .catch((err) => console.log(err));
+
+     
+    }, 2000);
+  }, []);
 
   return (
     <>
@@ -49,10 +120,10 @@ const Watchlist = () => {
             <th>PER_CHANGE</th>
           </tr>
 
-          {watchlistData.map((curr) => (
-            <WatchlistTableValues tableData={curr} />
-          ))}
-
+          {watchlistData &&
+            watchlistData.map((curr) => (
+              <WatchlistTableValues tableData={curr} key={curr.SCRIPID} />
+            ))}
         </table>
       </div>
     </>
