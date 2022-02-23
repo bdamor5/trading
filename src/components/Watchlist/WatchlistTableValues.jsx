@@ -7,14 +7,14 @@ const WatchlistTableValues = ({tableData}) => {
     const [prevLTP, setPrevLTP] = useState(tableData.LTP);
 
   return (
-    <tr style={{ color: "#fff", background: "#000" }}>
+    <tr style={{ color: "#fff", background: "#000"}}>
       <th>{tableData.DESCRIPTION}</th>
       <th>{tableData.VOLUME}</th>
       <th>{tableData.BUY_QTY}</th>
-      <th bgColor={tableData.BUY_PRICE > prevBuyPrice ? "blue" : "red"}>{tableData.BUY_PRICE}</th>
+      <th bgColor={tableData.BUY_PRICE > prevBuyPrice ? "blue" : (tableData.BUY_PRICE < prevBuyPrice && "red")}>{tableData.BUY_PRICE}</th>
       <th>{tableData.SELL_QTY}</th>
-      <th bgColor={tableData.SELL_PRICEe > prevSellPrice ? "blue" : "red"}>{tableData.SELL_PRICE}</th>
-      <th bgColor={tableData.LTP > prevLTP ? "blue" : "red"}>{tableData.LTP}</th>
+      <th bgColor={tableData.SELL_PRICE > prevSellPrice ? "blue" : (tableData.SELL_PRICE < prevSellPrice && "red")}>{tableData.SELL_PRICE}</th>
+      <th bgColor={tableData.LTP > prevLTP ? "blue" : (tableData.LTP < prevLTP && "red")}>{tableData.LTP}</th>
       <th>{tableData.NET_CHANGE}</th>
       <th>{tableData.O_OPEN}</th>
       <th>{tableData.HIGH}</th>
