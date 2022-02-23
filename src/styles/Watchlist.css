@@ -1,0 +1,10 @@
+table {
+    border-collapse: collapse;
+  }
+  tr {
+    border: 1px solid black;
+  }
+
+  th{
+      padding:10px;
+  }
